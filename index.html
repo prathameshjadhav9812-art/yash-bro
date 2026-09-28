@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color"
+          content="#7c3aed">
+
+    <title>Sister Messenger 💌</title>
+
+    <!-- Supabase JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #667eea,
+                    #764ba2
+                );
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            padding: 20px;
+        }
+
+
+        .app {
+            width: 100%;
+
+            max-width: 500px;
+
+            background: white;
+
+            border-radius: 28px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.30);
+        }
+
+
+        .logo {
+            text-align: center;
+
+            font-size: 65px;
+
+            margin-bottom: 5px;
+        }
+
+
+        h1 {
+            text-align: center;
+
+            color: #4c1d95;
+
+            margin-bottom: 6px;
+        }
+
+
+        .subtitle {
+            text-align: center;
+
+            color: #777;
+
+            margin-bottom: 25px;
+        }
+
+
+        /* TABS */
+
+        .tabs {
+            display: flex;
+
+            gap: 10px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .tabs button {
+
+            flex: 1;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background: #eeeeee;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .tabs button.active {
+
+            background: #7c3aed;
+
+            color: white;
+        }
+
+
+        /* PANELS */
+
+        .panel {
+
+            display: none;
+        }
+
+
+        .panel.active {
+
+            display: block;
+        }
+
+
+        h2 {
+
+            color: #4c1d95;
+
+            margin-bottom: 18px;
+        }
+
+
+        /* INPUTS */
+
+        label {
+
+            display: block;
+
+            margin-top: 14px;
+
+            margin-bottom: 7px;
+
+            font-weight: bold;
+
+            color: #444;
+        }
+
+
+        input,
+        textarea {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: 2px solid #ddd;
+
+            border-radius: 14px;
+
+            font-size: 16px;
+
+            outline: none;
+        }
+
+
+        input:focus,
+        textarea:focus {
+
+            border-color: #7c3aed;
+        }
+
+
+        textarea {
+
+            min-height: 130px;
+
+            resize: vertical;
+        }
+
+
+        /* BUTTON */
+
+        .sendBtn {
+
+            width: 100%;
+
+            padding: 15px;
+
+            margin-top: 18px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background: #7c3aed;
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+
+        .sendBtn:hover {
+
+            background: #6d28d9;
+
+            transform: scale(1.01);
+        }
+
+
+        /* STATUS */
+
+        .status {
+
+            text-align: center;
+
+            margin-top: 14px;
+
+            font-weight: bold;
+
+            min-height: 22px;
+        }
+
+
+        /* MESSAGES */
+
+        .message {
+
+            background: #f3e8ff;
+
+            border-left:
+                5px solid #7c3aed;
+
+            padding: 16px;
+
+            margin-top: 14px;
+
+            border-radius: 14px;
+        }
+
+
+        .messageText {
+
+            font-size: 17px;
+
+            line-height: 1.5;
+
+            color: #333;
+
+            word-wrap: break-word;
+        }
+
+
+        .messageFrom {
+
+            margin-top: 10px;
+
+            font-weight: bold;
+
+            color: #6d28d9;
+        }
+
+
+        .time {
+
+            margin-top: 5px;
+
+            font-size: 12px;
+
+            color: #777;
+        }
+
+
+        .empty {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #777;
+        }
+
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #999;
+
+            font-size: 12px;
+        }
+
+
+        .heart {
+
+            text-align: center;
+
+            font-size: 25px;
+
+            margin-top: 10px;
+        }
+
+
+        /* CONNECTION */
+
+        .connection {
+
+            text-align: center;
+
+            font-size: 13px;
+
+            margin-top: 10px;
+
+            color: #777;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- HEADER -->
+
+    <div class="logo">
+        💌
+    </div>
+
+
+    <h1>
+        Sister Messenger
+    </h1>
+
+
+    <p class="subtitle">
+        A little message from me ❤️
+    </p>
+
+
+    <!-- TABS -->
+
+    <div class="tabs">
+
+
+        <button
+            id="senderTab"
+            class="active"
+            onclick="showPanel('sender')">
+
+            💻 Send
+
+        </button>
+
+
+        <button
+            id="sisterTab"
+            onclick="showPanel('sister')">
+
+            📱 Inbox
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- SEND PANEL -->
+    <!-- ============================= -->
+
+
+    <div
+        id="sender"
+        class="panel active">
+
+
+        <h2>
+            💌 Send a Message
+        </h2>
+
+
+        <label>
+            Your Name
+        </label>
+
+
+        <input
+            id="senderName"
+            type="text"
+            placeholder="Enter your name">
+
+
+        <label>
+            Your Message
+        </label>
+
+
+        <textarea
+            id="messageInput"
+            placeholder="Write something for your sister..."></textarea>
+
+
+        <button
+            class="sendBtn"
+            onclick="sendMessage()">
+
+            💌 SEND MESSAGE
+
+        </button>
+
+
+        <div
+            id="sendStatus"
+            class="status">
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- INBOX PANEL -->
+    <!-- ============================= -->
+
+
+    <div
+        id="sister"
+        class="panel">
+
+
+        <h2>
+            💖 Messages For You
+        </h2>
+
+
+        <button
+            class="sendBtn"
+            onclick="loadMessages()">
+
+            🔄 Refresh Messages
+
+        </button>
+
+
+        <div id="messages">
+
+            <div class="empty">
+
+                No messages yet 💌
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="heart">
+        ❤️
+    </div>
+
+
+    <div class="connection">
+        Connected to Sister Messenger ☁️
+    </div>
+
+
+    <div class="footer">
+
+        Made with ❤️ for my sister
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =====================================================
+   SUPABASE CONNECTION
+   ===================================================== */
+
+
+/*
+   YOUR SUPABASE PROJECT URL
+*/
+
+const SUPABASE_URL =
+    "https://qzunqjosqqcwbzccfpag.supabase.co";
+
+
+/*
+   YOUR PUBLISHABLE KEY
+*/
+
+const SUPABASE_KEY =
+    "sb_publishable_Dqw6-a9pAAmyYSm_uZFR7g_6zwRzSJm";
+
+
+/*
+   CREATE SUPABASE CLIENT
+*/
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+
+/* =====================================================
+   CHANGE PANEL
+   ===================================================== */
+
+
+function showPanel(panelName) {
+
+
+    /*
+       Hide all panels
+    */
+
+    document
+        .querySelectorAll(".panel")
+        .forEach(function(panel) {
+
+            panel.classList.remove("active");
+
+        });
+
+
+    /*
+       Remove active from tabs
+    */
+
+    document
+        .querySelectorAll(".tabs button")
+        .forEach(function(button) {
+
+            button.classList.remove("active");
+
+        });
+
+
+    /*
+       Show selected panel
+    */
+
+    document
+        .getElementById(panelName)
+        .classList.add("active");
+
+
+    /*
+       Activate correct button
+    */
+
+    if (panelName === "sender") {
+
+        document
+            .getElementById("senderTab")
+            .classList.add("active");
+
+    }
+
+
+    if (panelName === "sister") {
+
+        document
+            .getElementById("sisterTab")
+            .classList.add("active");
+
+
+        loadMessages();
+
+    }
+
+}
+
+
+
+/* =====================================================
+   SEND MESSAGE
+   ===================================================== */
+
+
+async function sendMessage() {
+
+
+    const sender =
+        document
+            .getElementById("senderName")
+            .value
+            .trim();
+
+
+    const message =
+        document
+            .getElementById("messageInput")
+            .value
+            .trim();
+
+
+    const status =
+        document
+            .getElementById("sendStatus");
+
+
+    /*
+       Check name
+    */
+
+    if (sender === "") {
+
+        status.textContent =
+            "⚠️ Please enter your name.";
+
+        return;
+    }
+
+
+    /*
+       Check message
+    */
+
+    if (message === "") {
+
+        status.textContent =
+            "⚠️ Please write a message.";
+
+        return;
+    }
+
+
+    /*
+       Show sending
+    */
+
+    status.textContent =
+        "Sending your message... 💌";
+
+
+    /*
+       Insert message into Supabase
+    */
+
+    const result =
+        await supabaseClient
+            .from("messages")
+            .insert([
+
+                {
+
+                    sender: sender,
+
+                    message: message
+
+                }
+
+            ]);
+
+
+    /*
+       Check for error
+    */
+
+    if (result.error) {
+
+        console.error(
+            result.error
+        );
+
+
+        status.textContent =
+            "❌ Message could not be sent.";
+
+
+        return;
+    }
+
+
+    /*
+       Message sent
+    */
+
+    status.textContent =
+        "✅ Message sent successfully! ❤️";
+
+
+    /*
+       Clear message box
+    */
+
+    document
+        .getElementById("messageInput")
+        .value = "";
+
+}
+
+
+
+/* =====================================================
+   LOAD MESSAGES
+   ===================================================== */
+
+
+async function loadMessages() {
+
+
+    const container =
+        document
+            .getElementById("messages");
+
+
+    /*
+       Loading message
+    */
+
+    container.innerHTML =
+        '<div class="empty">Loading messages... 💌</div>';
+
+
+    /*
+       Get messages from Supabase
+    */
+
+    const result =
+        await supabaseClient
+            .from("messages")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    /*
+       Check error
+    */
+
+    if (result.error) {
+
+        console.error(
+            result.error
+        );
+
+
+        container.innerHTML =
+            '<div class="empty">❌ Could not load messages.</div>';
+
+
+        return;
+    }
+
+
+    /*
+       Get data
+    */
+
+    const data =
+        result.data;
+
+
+    /*
+       Check if there are no messages
+    */
+
+    if (!data || data.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">No messages yet 💌</div>';
+
+
+        return;
+    }
+
+
+    /*
+       Clear old messages
+    */
+
+    container.innerHTML = "";
+
+
+    /*
+       Display every message
+    */
+
+    data.forEach(function(item) {
+
+
+        /*
+           Message box
+        */
+
+        const messageBox =
+            document.createElement("div");
+
+
+        messageBox.className =
+            "message";
+
+
+        /*
+           Message text
+        */
+
+        const messageText =
+            document.createElement("div");
+
+
+        messageText.className =
+            "messageText";
+
+
+        messageText.textContent =
+            item.message;
+
+
+        /*
+           Sender
+        */
+
+        const sender =
+            document.createElement("div");
+
+
+        sender.className =
+            "messageFrom";
+
+
+        sender.textContent =
+            "💌 From: " +
+            item.sender;
+
+
+        /*
+           Time
+        */
+
+        const time =
+            document.createElement("div");
+
+
+        time.className =
+            "time";
+
+
+        const date =
+            new Date(
+                item.created_at
+            );
+
+
+        time.textContent =
+            date.toLocaleString();
+
+
+        /*
+           Add everything
+        */
+
+        messageBox.appendChild(
+            messageText
+        );
+
+
+        messageBox.appendChild(
+            sender
+        );
+
+
+        messageBox.appendChild(
+            time
+        );
+
+
+        container.appendChild(
+            messageBox
+        );
+
+    });
+
+}
+
+
+
+/* =====================================================
+   AUTOMATIC REFRESH
+   ===================================================== */
+
+
+/*
+   Check for new messages
+   every 5 seconds
+*/
+
+setInterval(function() {
+
+
+    const sisterPanel =
+        document.getElementById("sister");
+
+
+    if (
+        sisterPanel.classList.contains("active")
+    ) {
+
+        loadMessages();
+
+    }
+
+
+}, 5000);
+
+
+
+/* =====================================================
+   START
+   ===================================================== */
+
+
+console.log(
+    "Sister Messenger is running 💌"
+);
+
+
+</script>
+
+
+</body>
+
+</html>
